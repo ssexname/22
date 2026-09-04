@@ -5,7 +5,6 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
-# KSP 화면(UI) 충돌 튕김 버그 강제 차단
 env:
   JAVA_TOOL_OPTIONS: "-Djava.awt.headless=true"
 
@@ -25,30 +24,34 @@ jobs:
 
       - name: 환경변수 및 가짜 인증서 강제 생성
         run: |
-          # 서버 주소 에러 방지
           touch .env.example && touch .env
           echo "SERVER_URL=http://localhost:3000" > .env
           echo "SERVER_URL=http://localhost:3000" > .env.example
-          
-          # 인증서(Keystore) 에러 방지용 가짜 도장 생성
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "C=US, O=Android, CN=Android Debug" || true
 
       - name: Gradle 환경 구성
         uses: gradle/actions/setup-gradle@v3
 
-      - name: APK 빌드 (모든 에러 덮어쓰기)
+      - name: APK 빌드 및 에러 자동 추출
         run: |
-          # 0초 만에 튕기는 현상 방지: 실행 파일(gradlew) 자동 생성
-          if [ ! -f "gradlew" ]; then
-            gradle wrapper
-          fi
+          if [ ! -f "gradlew" ]; then gradle wrapper; fi
           chmod +x gradlew
           
-          # 캐시 무시하고, 가짜 인증서로 덮어씌워서 강제 빌드
-          ./gradlew assembleDebug --no-daemon -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore -Pandroid.injected.signing.store.password=android -Pandroid.injected.signing.key.alias=androiddebugkey -Pandroid.injected.signing.key.password=android --stacktrace
+          echo "빌드를 시작합니다..."
+          # 빌드하면서 발생하는 모든 로그를 파일로 몰래 빼돌립니다.
+          ./gradlew assembleDebug --no-daemon -Pandroid.injected.signing.store.file=$HOME/.android/debug.keystore -Pandroid.injected.signing.store.password=android -Pandroid.injected.signing.key.alias=androiddebugkey -Pandroid.injected.signing.key.password=android --stacktrace > build_log.txt 2>&1 \vert{}\vert{} BUILD_STATUS=$?
+          
+          # 에러가 났을 경우, 깃허브 Summary(요약) 화면에 진짜 에러 내용만 텍스트로 박아버립니다.
+          if [ -n "$BUILD_STATUS" ]; then
+            echo "### 🚨 진짜 에러 원인 🚨" >> $GITHUB_STEP_SUMMARY
+            echo '```text' >> $GITHUB_STEP_SUMMARY
+            grep -A 15 -B 2 -E "What went wrong|e: |Exception" build_log.txt >> $GITHUB_STEP_SUMMARY \vert{}\vert{} tail -n 20 build_log.txt >>$GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
-      - name: 🎁 생성된 APK 파일 다운로드 생성
+      - name: 🎁 생성된 APK 파일 다운로드
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
