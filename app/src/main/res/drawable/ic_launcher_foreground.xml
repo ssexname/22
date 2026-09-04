@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer subtle glow circle in 66dp safe zone (center 54, radius 30) -->
+    <path
+        android:pathData="M 54 24 A 30 30 0 1 1 53.9 24 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#33D0BCFF"
+        android:fillColor="#1AD0BCFF" />
+
+    <!-- Musical Note Icon -->
+    <path
+        android:pathData="M50,34 L66,30 L66,54 C63.8,52.8 61,52 58,52 C51.4,52 46,56.5 46,62 C46,67.5 51.4,72 58,72 C64.6,72 70,67.5 70,62 L70,38 L50,42 Z"
+        android:fillType="nonZero">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="46"
+                android:startY="30"
+                android:endX="70"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFEADDFF" />
+                <item android:offset="1.0" android:color="#FFD0BCFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Sound waves / streaming beam on the left -->
+    <path
+        android:pathData="M38,44 C35,47 33,51 33,56 C33,61 35,65 38,68"
+        android:strokeWidth="2.5"
+        android:strokeColor="#80D0BCFF"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+
+    <path
+        android:pathData="M31,39 C26,43 23,49 23,56 C23,63 26,69 31,73"
+        android:strokeWidth="2.5"
+        android:strokeColor="#40D0BCFF"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+</vector>
