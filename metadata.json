@@ -1,0 +1,6 @@
+{
+  "name": "Neiro",
+  "description": "PC 음악 원격 스트리밍 플레이어",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
